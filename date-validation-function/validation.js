@@ -126,20 +126,25 @@ function validateDates(year, month, day) {
   return 'valid';
 }
 
+function isNaN(value) {
+  return value + EMPTY_STRING === "NaN";
+}
+
 // main function
 function validate(format, date) {
   if (!isFormatValid(format)) {
     return 'invalid format';
   }
 
-  if (!isDateValidToFormat(format, date)) {
-    return 'date not according to format';
-  }
-
   const year = cutDateAccordingToFormat(format, date, "y", 4);
   const month = cutDateAccordingToFormat(format, date, "m", 2);
   const day = cutDateAccordingToFormat(format, date, "d", 2);
 
+  const isAnythingNaN = isNaN(year) || isNaN(month) || isNaN(day);
+  if (!isDateValidToFormat(format, date) || isAnythingNaN) {
+    return 'date not according to format';
+  }
+  
   return validateDates(year, month, day);
 }
 
@@ -161,39 +166,41 @@ function testDateIsNotAccordingToFormat() {
   testValidate('dd-mm-yyyy', '11-1-1111', 'date not according to format');
   testValidate('dd-mm-yyyy', '1-11-1111', 'date not according to format');
   testValidate('yyyy-mm-dd', '1111-11-1', 'date not according to format');
+  testValidate('yyyy-mm-dd', '0001-aa-01', 'date not according to format');
   testValidate('yyyy-mm-dd', '1111-1-11', 'date not according to format');
   testValidate('yyyy-mm-dd', '11111-1-11', 'date not according to format');
   testValidate('yyyy-mm-dd', '11-11- 111', 'date not according to format');
+  testValidate('mm-dd-yyyy', 'aa-01-0001', 'date not according to format');
   testValidate('yyyy-mm-dd', '----------', 'date not according to format');
   testValidate('mm-dd-yyyy', '11-11- 224', 'date not according to format');
   testValidate('yyyy-mm-dd', 'yyyy- 1- 1', 'date not according to format');
-  testValidate('yyyy-mm-dd', 'yyyy-a  1-a1', 'date not according to format');
+  testValidate('dd-mm-yyyy', '01-aa-0001', 'date not according to format');
+  testValidate('yyyy-mm-dd', 'yyyy-a1-a1', 'date not according to format');
+  testValidate('yyyy-mm-dd', '0001-1a-01', 'date not according to format');
+  testValidate('dd-mm-yyyy', '01-1a-0001', 'date not according to format');
+  testValidate('mm-dd-yyyy', '1a-01-0001', 'date not according to format');
+  testValidate('yyyy-mm-dd', 'tada-11-11', 'date not according to format');
+  testValidate('dd-mm-yyyy', '11-11-tasa', 'date not according to format');
+  testValidate('dd-mm-yyyy', '11-11-yyyy', 'date not according to format');
+  testValidate('mm-dd-yyyy', '11-11-tasa', 'date not according to format');
+  testValidate('mm-dd-yyyy', '11-11-yyyy', 'date not according to format');
+
 }
 
 function testInvalidYear() {
   testValidate('yyyy-mm-dd', '0000-11-11', 'invalid year');
-  testValidate('yyyy-mm-dd', 'tada-11-11', 'invalid year');
   testValidate('dd-mm-yyyy', '11-11-0000', 'invalid year');
-  testValidate('dd-mm-yyyy', '11-11-tasa', 'invalid year');
-  testValidate('dd-mm-yyyy', '11-11-yyyy', 'invalid year');
   testValidate('mm-dd-yyyy', '11-11-0000', 'invalid year');
-  testValidate('mm-dd-yyyy', '11-11-tasa', 'invalid year');
-  testValidate('mm-dd-yyyy', '11-11-yyyy', 'invalid year');
+  testValidate('mm-dd-yyyy', '11-11-0000', 'invalid year');
 }
 
 function testInvalidMonth() {
   testValidate('yyyy-mm-dd', '0001-00-01', 'invalid month');
   testValidate('yyyy-mm-dd', '0001-13-01', 'invalid month');
-  testValidate('yyyy-mm-dd', '0001-1a-01', 'invalid month');
-  testValidate('yyyy-mm-dd', '0001-aa-01', 'invalid month');
   testValidate('mm-dd-yyyy', '00-01-0001', 'invalid month');
   testValidate('mm-dd-yyyy', '13-01-0001', 'invalid month');
-  testValidate('mm-dd-yyyy', '1a-01-0001', 'invalid month');
-  testValidate('mm-dd-yyyy', 'aa-01-0001', 'invalid month');
   testValidate('dd-mm-yyyy', '01-00-0001', 'invalid month');
   testValidate('dd-mm-yyyy', '01-13-0001', 'invalid month');
-  testValidate('dd-mm-yyyy', '01-1a-0001', 'invalid month');
-  testValidate('dd-mm-yyyy', '01-aa-0001', 'invalid month');
 }
 
 function testInvalidDay() {
